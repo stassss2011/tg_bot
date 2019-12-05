@@ -1,0 +1,3 @@
+resize 700 700
+sharpness 30
+blur 3
