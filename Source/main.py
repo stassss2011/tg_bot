@@ -12,14 +12,11 @@ class Manager:
         self.filter_chain = None
 
     def open_file(self, file_name):
-        self.image_obj = Image.open("./" + str(file_name))
-        self.image_obj.show()
+        self.image_obj = Image.open(file_name)
 
     def save_file(self, file_name):
-        self.image_obj.show()
-        if str(file_name)[-4] != '.':
-            out_name = str(file_name) + ".png"
-        self.image_obj.save("./" + str(file_name))
+        if self.image_obj is not None:
+            self.image_obj.save(file_name)
 
     def init_filter_chain(self):
         self.filter_chain = FilterGroup()
@@ -43,7 +40,8 @@ class Manager:
         self.filter_chain.add(filter_i(args))
 
     def remove_filter_from_chain(self):
-        self.filter_chain.remove()
+        if self.filter_chain is not None:
+            self.filter_chain.remove()
 
     def apply_filter_chain(self):
         if self.filter_chain is not None:
@@ -52,21 +50,36 @@ class Manager:
     def save_complex_filter(self, file_name):
         if self.filter_chain is not None:
             file = open(file_name, "w")
-            file.write(self.filter_chain.get_filter_list())
+            file.write(self.get_filter_list())
             file.close()
+
+    def get_filter_list(self):
+        if self.filter_chain is not None:
+            return self.filter_chain.get_filter_list()
 
     def load_complex_filter(self, file_name):
         file = open(file_name, "r")
         operations = file.read().split("\n")
         for oper_str in operations:
-            oper_list = oper_str.split()
-            if oper_list:
-                f_id = oper_list[0]
-                if len(oper_list) > 1:
-                    args = oper_list[1:]
-                else:
-                    args = None
-                self.add_filter_to_chain(f_id, args)
+            self.add_filter_from_str(oper_str)
+
+    def load_complex_filter_from_str(self, operations):
+        for oper_str in operations.split("\n"):
+            self.add_filter_from_str(oper_str)
+
+    def add_filter_from_str(self, filter_str):
+        filter_str = filter_str.split()
+        if filter_str:
+            f_id = filter_str[0]
+            if len(filter_str) > 1:
+                args = filter_str[1:]
+            else:
+                args = None
+            self.add_filter_to_chain(f_id, args)
+
+    def img_show(self):
+        if self.image_obj is not None:
+            self.image_obj.show()
 
 
 class FilterInterface(ABC):
@@ -95,7 +108,7 @@ class Filter(FilterInterface, ABC):
     name: str
 
     def __init__(self, args):
-        print("Created Filter-class")
+        # print("Created Filter-class")
         self.args = args
 
     def get_filter_list(self) -> str:
@@ -139,7 +152,9 @@ class Flip(Filter):
     def apply(self, image) -> Image:
         mode = {
             "h": Image.FLIP_TOP_BOTTOM,
-            "v": Image.FLIP_LEFT_RIGHT
+            "H": Image.FLIP_TOP_BOTTOM,
+            "v": Image.FLIP_LEFT_RIGHT,
+            "V": Image.FLIP_LEFT_RIGHT
         }
         return image.transpose(mode.get(self.args[0]))
 
@@ -174,7 +189,7 @@ class AdjustSharpness(Filter):
 
 class FilterGroup(FilterInterface):
     def __init__(self):
-        print("Created filter group-class")
+        # print("Created filter group-class")
         self.image = None
         self._children: List[FilterInterface] = []
 
@@ -183,8 +198,9 @@ class FilterGroup(FilterInterface):
         component.parent = self
 
     def remove(self):
-        self._children[-1].parent = None
-        self._children.pop()
+        if len(self._children) >= 1:
+            self._children[-1].parent = None
+            self._children.pop()
 
     def get_filter_list(self) -> str:
         f_list = str()
@@ -200,11 +216,11 @@ class FilterGroup(FilterInterface):
             self.image = child.apply(self.image)
         return self.image
 
-
-MNG = Manager()
-print("opening file")
-MNG.open_file("test.png")
-
+# MNG = Manager()
+# print("opening file")
+# MNG.open_file("test.png")
+# MNG.img_show()
+#
 # MNG.add_filter_to_chain("rotate", -27)
 # MNG.add_filter_to_chain("resize", 700, 700)
 # MNG.add_filter_to_chain("flip", "v")
@@ -219,16 +235,17 @@ MNG.open_file("test.png")
 #
 #
 # MNG.save_complex_filter("filter.txt")
-
-print("load_filters")
-MNG.load_complex_filter("filter.txt")
-
+#
+# print("load_filters")
+# MNG.load_complex_filter("filter.txt")
+#
 # MNG.remove_filter_from_chain()
-
-
-
-print("apply filter")
-MNG.apply_filter_chain()
-
-print("save file")
-MNG.save_file("out.jpg")
+#
+#
+#
+# print("apply filter")
+# MNG.apply_filter_chain()
+#
+# print("save file")
+# MNG.img_show()
+# MNG.save_file("out.jpg")
