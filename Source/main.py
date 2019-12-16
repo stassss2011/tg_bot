@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from abc import ABC
@@ -10,9 +11,11 @@ class Manager:
     def __init__(self):
         self.image_obj = None
         self.filter_chain = None
+        self.image_copy = None
 
     def open_file(self, file_name):
         self.image_obj = Image.open(file_name)
+        self.image_copy = self.image_obj
 
     def save_file(self, file_name):
         if self.image_obj is not None:
@@ -81,6 +84,9 @@ class Manager:
         if self.image_obj is not None:
             self.image_obj.show()
 
+    def reset(self):
+        self.image_obj = self.image_copy
+
 
 class FilterInterface(ABC):
     @property
@@ -108,7 +114,6 @@ class Filter(FilterInterface, ABC):
     name: str
 
     def __init__(self, args):
-        # print("Created Filter-class")
         self.args = args
 
     def get_filter_list(self) -> str:
