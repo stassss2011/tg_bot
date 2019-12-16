@@ -94,13 +94,13 @@ USERS = {}
 
 
 @BOT.message_handler(commands=['admin_nfo'])
-def echo_all(message):
+def admin_info(message):
     print(str(message.chat.id) + ': ' + str(message.chat.username) + ' = ' + '/admin_nfo')
     BOT.send_message(message.chat.id, str(message.chat.id) + ': ' + str(message.chat.username) + ' = ' + '/admin_nfo')
     print("list of users:")
     u_list = []
     for user in USERS.keys():
-        u_list.append(str(user.get_nick()) + ': ' + str(user.get_status()))
+        u_list.append(str(USERS.get(user).get_nick()) + ': ' + str(USERS.get(user).get_status()))
     print('\n'.join(u_list))
     BOT.send_message(message.chat.id, "list of users:\n\n" + '\n'.join(u_list))
 
@@ -286,7 +286,7 @@ def echo_all(message):
 
 while True:
     try:
-        BOT.polling()
+        BOT.polling(none_stop=true)
     except Exception as e:
         print('!! = ' + "exception " + str(e))
         time.sleep(3)
