@@ -86,7 +86,7 @@ FILTER_SWITCH = {"Gaussian Blur": "blur",
                  'Adj Sharpness': "sharpness",
                  'Adj Brightness': "brightness"}
 
-API_TOKEN = "1046577086:AAF9ddY3UYl34imgmjPVhaIiB0nWbVXi_t8"
+API_TOKEN = "API_token"
 
 BOT = telebot.TeleBot(API_TOKEN)
 
